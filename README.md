@@ -1,1 +1,1 @@
-# hashcode2k17
+# hashcode2k17yarn && npm run start
