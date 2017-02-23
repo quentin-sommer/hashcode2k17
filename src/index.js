@@ -44,6 +44,7 @@ const processEndpoits = () => {
       nextStart = int(declaration[1]) + i + 1
       tmpArr.push({
         id: endPointId++,
+        servLatency: int(declaration[0]),
         latencies: []
       })
     } else {
@@ -77,12 +78,12 @@ const doSomethingElse = () => {
 const main = () => {
   /*
    {
-   id,
-   latencies: [{
-   // cache latencies
-   id,
-   distance
-   }]
+     id,
+     latencies: [{
+       // cache latencies
+       id,
+       distance
+     }]
    }
    */
   dataStore.endpoints = []
@@ -93,8 +94,8 @@ const main = () => {
     .then(processEndpoits)
     .then(processRequests)
     .then(() => {
-      console.log(dataStore.videos)
-      // console.log(dataStore)
+      //console.log(dataStore.videos)
+      console.log(dataStore)
     })
     .catch(console.log)
 }
