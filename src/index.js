@@ -74,6 +74,78 @@ const processRequests = () => {
   dataStore.requests = tmpArr
 }
 
+const doCacheRepartition = (map) => {
+  const cacheArr = []
+  // init
+  for (let i = 0; i < dataStore.cacheServCount; i++) {
+    cacheArr[i] = {}
+    cacheArr[i].videos = {}
+    for (let j = 0; j < dataStore.videoCount; j++) {
+      cacheArr[i].videos[j] = {
+        score: 0,
+        weight: dataStore.videos[j].weight
+      }
+    }
+  }
+  cacheArr.forEach((cache, index) => {
+    itMap(map, (entry) => {
+      const item = entry.connectedCaches.find(cache => cache.cacheId === index)
+      if (item !== undefined) {
+        entry.videos.forEach(video => {
+          cache.videos[video.videoId].score += (video.number * entry.servLatency) - (video.number * item.distance)
+        })
+      }
+    })
+  })
+  let videoCache = []
+  for (let i = 0; i < dataStore.videoCount; i++) {
+    let tmpMax = {score: -1, cache: null, weight: 0}
+    cacheArr.forEach((cache, idx) => {
+      if (cache.videos[i].score > tmpMax.score) {
+        tmpMax.score = cache.videos[i].score
+        tmpMax.cache = idx
+        tmpMax.weight = cache.videos[i].weight
+      }
+    })
+    videoCache.push({
+      videoId: i,
+      cacheId: tmpMax.cache,
+      score: tmpMax.score,
+      videoWeight: tmpMax.weight,
+    })
+  }
+  videoCache = _.sortBy(videoCache, [videoCache => videoCache.score]).reverse()
+
+  const finalCacheArr = []
+  for (let i = 0; i < dataStore.cacheServCount; i++) {
+    finalCacheArr[i] = {
+      capacity: dataStore.cacheServCapacity,
+      videos: []
+    }
+  }
+  console.log('\n')
+  const casey = []
+  videoCache.forEach((entry, idx) => {
+    if (!casey.includes(entry.videoId) && finalCacheArr[entry.cacheId].capacity - entry.videoWeight >= 0) {
+      finalCacheArr[entry.cacheId].videos.push(entry.videoId)
+      finalCacheArr[entry.cacheId].capacity -= entry.videoWeight
+      casey.push(entry.videoId)
+    }
+  })
+
+  const used = finalCacheArr.filter(cache => cache.capacity !== dataStore.cacheServCapacity).length
+
+  const fileRes = []
+  fileRes.push(used)
+  fileRes.push(...finalCacheArr
+    .filter(cache => cache.capacity !== dataStore.cacheServCapacity)
+    .map((cache, idx) => {
+      return `${idx} ${cache.videos.join(' ')}`
+    })
+  )
+  require('fs').writeFileSync('res.txt', fileRes.join('\n'))
+}
+
 const doSomethingElse = () => {
   let res = dataStore.requests.reduce((acc, request) => {
     if (acc[request.endpointId] === undefined) {
@@ -93,10 +165,21 @@ const doSomethingElse = () => {
   }, {})
   dataStore.endpoints.map(endpoint => {
     res[endpoint.id].connectedCaches = endpoint.latencies
-    res[endpoint.id].videos = _.sortBy(res[endpoint.id].videos, [(video) => video.weightXnumber]).reverse()
+    res[endpoint.id].videos = _.sortBy(res[endpoint.id].videos, [(video) => {
+      let tmp = _.sortBy(res[endpoint.id].connectedCaches, cache => cache.distance)[0]
+      if (tmp === undefined)
+        tmp = res[endpoint.id].servLatency
+      else
+        tmp = tmp.distance
+      res[endpoint.id].withServ = res[endpoint.id].servLatency * video.number
+      res[endpoint.id].withCache = video.number * tmp
+      res[endpoint.id].diff = res[endpoint.id].withServ - res[endpoint.id].withCache
+      return (res[endpoint.id].servLatency * video.number) - video.number * tmp
+    }])
   })
-  res = _.sortBy(res, [entry => entry.videos[0].weightXnumber]).reverse()
-  console.log(res[0])
+  res = _.sortBy(res, [entry => entry.videos[0].number]).reverse()
+
+  doCacheRepartition(res)
 }
 
 const main = () => {
