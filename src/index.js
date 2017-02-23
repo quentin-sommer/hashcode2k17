@@ -59,6 +59,16 @@ const doSomethingElse = () => {
 
 const main = () => {
   dataStore.lines = []
+  /*
+  {
+    id,
+    latencies: [{
+      // cache latencies
+      id,
+      distance
+    }]
+  }
+   */
   dataStore.endpoints = []
   dataStore.requests = []
 
