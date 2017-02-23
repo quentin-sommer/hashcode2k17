@@ -38,7 +38,7 @@ const processEndpoits = () => {
         break
       }
       const declaration = dataStore.endpoints[i].split(' ')
-      nextStart = parseInt(declaration[1], 10) + i + 1
+      nextStart = int(declaration[1]) + i + 1
       tmpArr.push({
         id: endPointId++,
         latencies: []
