@@ -7,6 +7,8 @@ const dataStore = {}
 const endpointSection = (lineNumber, line) => lineNumber > 2 && line.split(' ').length !== 3
 const requestsSections = (lineNumber, line) => lineNumber > 2 && line.split(' ').length === 3
 const int = val => parseInt(val, 10)
+const itMap = (map, fn) => Object.keys(map).forEach(key => fn(map[key]))
+
 const processLine = (line, lineNumber) => {
   let arr = null
   switch (lineNumber) {
@@ -73,7 +75,7 @@ const processRequests = () => {
 }
 
 const doSomethingElse = () => {
-  const res = dataStore.requests.reduce((acc, request) => {
+  let res = dataStore.requests.reduce((acc, request) => {
     if (acc[request.endpointId] === undefined) {
       acc[request.endpointId] = {}
       acc[request.endpointId].endpointId = request.endpointId
@@ -93,6 +95,7 @@ const doSomethingElse = () => {
     res[endpoint.id].connectedCaches = endpoint.latencies
     res[endpoint.id].videos = _.sortBy(res[endpoint.id].videos, [(video) => video.weightXnumber]).reverse()
   })
+  res = _.sortBy(res, [entry => entry.videos[0].weightXnumber]).reverse()
   console.log(res[0])
 }
 
