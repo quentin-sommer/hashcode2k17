@@ -72,30 +72,41 @@ const processRequests = () => {
 }
 
 const doSomethingElse = () => {
-  //console.log(dataStore.endpoints)
+  const res = dataStore.requests.reduce((acc, request) => {
+    if (acc[request.endpointId] === undefined) {
+      acc[request.endpointId] = {}
+      acc[request.endpointId].videos = []
+    }
+    acc[request.endpointId].videos.push({
+      videoId: request.videoId,
+      number: request.number
+    })
+    return acc
+  }, {})
+  console.log(res[0])
 }
 
 const main = () => {
   /*
    {
-     id,
-     latencies: [{
-       // cache latencies
-       id,
-       distance
-     }]
+   id,
+   latencies: [{
+   // cache latencies
+   id,
+   distance
+   }]
    }
    */
   dataStore.endpoints = []
   dataStore.requests = []
 
   readLinePerLineSync(filename, processLine)
-    .then(doSomethingElse)
     .then(processEndpoits)
     .then(processRequests)
+    .then(doSomethingElse)
     .then(() => {
       //console.log(dataStore.videos)
-      console.log(dataStore)
+//      console.log(dataStore)
     })
     .catch(console.log)
 }
