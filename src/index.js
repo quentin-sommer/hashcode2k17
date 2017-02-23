@@ -76,6 +76,7 @@ const doSomethingElse = () => {
     if (acc[request.endpointId] === undefined) {
       acc[request.endpointId] = {}
       acc[request.endpointId].videos = []
+      acc[request.endpointId].connectedCaches = []
     }
     acc[request.endpointId].videos.push({
       videoId: request.videoId,
@@ -83,6 +84,9 @@ const doSomethingElse = () => {
     })
     return acc
   }, {})
+  dataStore.endpoints.map(endpoint => {
+    res[endpoint.id].connectedCaches = endpoint.latencies
+  })
   console.log(res[0])
 }
 
@@ -105,7 +109,7 @@ const main = () => {
     .then(processRequests)
     .then(doSomethingElse)
     .then(() => {
-      //console.log(dataStore.videos)
+      //    console.log(dataStore.endpoints)
 //      console.log(dataStore)
     })
     .catch(console.log)
