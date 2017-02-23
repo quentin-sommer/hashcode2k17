@@ -75,6 +75,8 @@ const doSomethingElse = () => {
   const res = dataStore.requests.reduce((acc, request) => {
     if (acc[request.endpointId] === undefined) {
       acc[request.endpointId] = {}
+      acc[request.endpointId].endpointId = request.endpointId
+      acc[request.endpointId].servLatency = dataStore.endpoints[request.endpointId].servLatency
       acc[request.endpointId].videos = []
       acc[request.endpointId].connectedCaches = []
     }
