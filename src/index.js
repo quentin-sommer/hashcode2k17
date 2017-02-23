@@ -54,20 +54,33 @@ const processEndpoits = () => {
   dataStore.endpoints = tmpArr
 }
 
+const processRequests = () => {
+  const tmpArr = []
+  for (let i = 0; i < dataStore.requestsCount; i++) {
+    const requestDesc = dataStore.requests[i].split(' ')
+    tmpArr.push({
+      videoId: int(requestDesc[0]),
+      endpointId: int(requestDesc[1]),
+      number: int(requestDesc[2])
+    })
+  }
+  dataStore.requests = tmpArr
+}
+
 const doSomethingElse = () => {
   //console.log(dataStore.endpoints)
 }
 
 const main = () => {
   /*
-  {
-    id,
-    latencies: [{
-      // cache latencies
-      id,
-      distance
-    }]
-  }
+   {
+   id,
+   latencies: [{
+   // cache latencies
+   id,
+   distance
+   }]
+   }
    */
   dataStore.endpoints = []
   dataStore.requests = []
@@ -75,8 +88,10 @@ const main = () => {
   readLinePerLineSync(filename, processLine)
     .then(doSomethingElse)
     .then(processEndpoits)
+    .then(processRequests)
     .then(() => {
-      console.log(dataStore)
+      console.log(dataStore.requests)
+      // console.log(dataStore)
     })
     .catch(console.log)
 }
