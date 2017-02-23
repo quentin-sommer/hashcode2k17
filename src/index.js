@@ -5,16 +5,17 @@ const dataStore = {}
 
 const endpointSection = (lineNumber, line) => lineNumber > 2 && line.split(' ').length !== 3
 const requestsSections = (lineNumber, line) => lineNumber > 2 && line.split(' ').length === 3
+const int = val => parseInt(val, 10)
 const processLine = (line, lineNumber) => {
   let arr = null
   switch (lineNumber) {
     case 1 :
       arr = line.split(' ')
-      dataStore.videoCount = arr[0]
-      dataStore.endpointsCount = arr[1]
-      dataStore.requestsCount = arr[2]
-      dataStore.cacheServCount = arr[3]
-      dataStore.cacheServCapacity = arr[4]
+      dataStore.videoCount = int(arr[0])
+      dataStore.endpointsCount = int(arr[1])
+      dataStore.requestsCount = int(arr[2])
+      dataStore.cacheServCount = int(arr[3])
+      dataStore.cacheServCapacity = int(arr[4])
       break
     case 2:
       dataStore.videos = line.split(' ')
@@ -45,8 +46,8 @@ const processEndpoits = () => {
     } else {
       const distance = dataStore.endpoints[i].split(' ')
       tmpArr[tmpArr.length - 1].latencies.push({
-        cacheId: distance[0],
-        distance: distance[1]
+        cacheId: int(distance[0]),
+        distance: int(distance[1])
       })
     }
   }
@@ -58,7 +59,6 @@ const doSomethingElse = () => {
 }
 
 const main = () => {
-  dataStore.lines = []
   /*
   {
     id,
@@ -76,6 +76,7 @@ const main = () => {
     .then(doSomethingElse)
     .then(processEndpoits)
     .then(() => {
+      console.log(dataStore)
     })
     .catch(console.log)
 }
