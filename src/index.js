@@ -18,7 +18,10 @@ const processLine = (line, lineNumber) => {
       dataStore.cacheServCapacity = int(arr[4])
       break
     case 2:
-      dataStore.videos = line.split(' ')
+      dataStore.videos = line.split(' ').map((entry, index) => ({
+        id: index,
+        weight: int(entry)
+      }))
       break
   }
   if (endpointSection(lineNumber, line)) {
@@ -90,7 +93,7 @@ const main = () => {
     .then(processEndpoits)
     .then(processRequests)
     .then(() => {
-      console.log(dataStore.requests)
+      console.log(dataStore.videos)
       // console.log(dataStore)
     })
     .catch(console.log)
