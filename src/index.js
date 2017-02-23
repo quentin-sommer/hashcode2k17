@@ -1,4 +1,5 @@
 import {readLinePerLineSync} from './utils'
+import _ from 'lodash'
 
 const filename = './input/me_at_the_zoo.in'
 const dataStore = {}
@@ -82,12 +83,15 @@ const doSomethingElse = () => {
     }
     acc[request.endpointId].videos.push({
       videoId: request.videoId,
-      number: request.number
+      number: request.number,
+      weight: dataStore.videos[request.videoId].weight,
+      weightXnumber: request.number * dataStore.videos[request.videoId].weight
     })
     return acc
   }, {})
   dataStore.endpoints.map(endpoint => {
     res[endpoint.id].connectedCaches = endpoint.latencies
+    res[endpoint.id].videos = _.sortBy(res[endpoint.id].videos, [(video) => video.weightXnumber]).reverse()
   })
   console.log(res[0])
 }
